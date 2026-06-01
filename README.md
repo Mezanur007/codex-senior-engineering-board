@@ -1,6 +1,15 @@
 # Senior Engineering Board for Codex
 
-A Codex-native adversarial engineering audit skill.
+An open-source Codex skill that brings structured senior-engineering audit workflows to GPT/Codex users.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Codex Skill](https://img.shields.io/badge/Codex-Skill-blue.svg)](skills/senior-engineering-board/SKILL.md)
+
+## Why This Exists
+
+This project is a contribution to the Codex/GPT developer ecosystem: a reusable audit skill for teams that want sharper engineering judgment before merging, launching, or trusting a codebase.
+
+Instead of a single friendly review, it creates a structured board debate with evidence, disagreement, verdicts, and severity-ranked action items.
 
 Senior Engineering Board convenes four review roles inside Codex:
 
@@ -62,6 +71,15 @@ Use $senior-engineering-board for launch readiness. Is this ready to ship?
 ```text
 Find the loopholes in this system with the Senior Engineering Board.
 ```
+
+## Highlight
+
+This repository is intended to be useful as an open-source contribution:
+
+- A practical Codex skill, not just a prompt.
+- A reusable review workflow for GPT/Codex users.
+- A structured method for codebase, PR, architecture, and launch-readiness audits.
+- A starting point other developers can fork, adapt, and improve.
 
 ## Modes
 
