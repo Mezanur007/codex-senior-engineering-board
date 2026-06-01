@@ -5,7 +5,7 @@ description: Run a Codex-native adversarial engineering audit of a codebase, pul
 
 # Senior Engineering Board
 
-Use this skill to convene a four-role engineering board inside Codex. The board inspects evidence, records disagreement, and issues written rulings.
+Use this skill to convene a four-role engineering board inside Codex. The board gathers repository facts first, separates evidence from inference, records disagreement, and issues written rulings.
 
 Default posture: audit first, do not edit source files. Write audit deliverables under `docs/audit/{YYYY-MM-DD}/` unless the user asks for a different output path.
 
@@ -39,39 +39,56 @@ The board must be direct, specific, and fair. Avoid vague praise, vague criticis
    - Ask at most three clarifying questions only when the answer changes the audit materially.
    - Lock configuration at the start: ignored paths, generated files, size thresholds, and whether to include tests/docs.
 
-2. **Gather evidence**
+2. **Build a repo snapshot**
+   - Gather facts before judgment. Do not begin board rulings until the snapshot exists.
+   - Classify project type, runtime stack, frameworks, package managers, storage layers, external integrations, CI/deployment shape, test presence, and generated/ignored paths.
+   - Identify risk surfaces: auth, authorization, tenant boundaries, payments, file upload, webhooks, background jobs, migrations, external APIs, LLM/tool calls, secrets, and deployment rollback.
+   - Record missing evidence explicitly. Missing evidence can become a finding only when it materially affects risk.
+   - If available, run `scripts/repo-snapshot.ps1` from this skill as an optional read-only helper. The helper is not required; manual inspection is acceptable.
+
+3. **Gather evidence**
    - Inspect repository structure with fast search tools such as `rg --files`.
    - Read README, package manifests, dependency manifests, routing/config files, CI, deployment files, tests, and representative core modules.
    - For PRs, inspect metadata, diff, changed files, review comments, and CI status when available.
    - Prefer read-only commands during the audit.
+   - Label material statements as `Observed fact`, `Inference`, or `Open question`.
 
-3. **Classify stage**
+4. **Classify project and stage**
+   - Project type: web app, API/backend, mobile app, SaaS/business app, AI/LLM product, library/tooling, data pipeline, or mixed.
    - `Blueprint`: mostly idea/spec/skeleton.
    - `Development`: working code, incomplete production hardening.
    - `Launch`: feature-complete or production-bound.
    - `Production`: already live; focus on incident risk and maintainability.
    - If the user says the stage conflicts with code evidence, note the conflict and use the user's stage as authoritative.
+   - Read `references/audit-playbooks.md` when the project type or mode needs targeted checks.
 
-4. **Inventory**
+5. **Inventory**
    - Catalog meaningful components: services, routes, jobs, screens, data models, migrations, integrations, scripts, and shared utilities.
    - Record path, purpose, dependencies, dependents, and risk notes.
    - Skip vendored, generated, and build-output files unless they are the subject of the request.
 
-5. **Dependency map**
+6. **Dependency map**
    - Map important dependency direction.
    - Flag circular dependencies, god modules, orphaned code, hidden runtime coupling, and long chains.
    - Use Mermaid when helpful; use a table for small scopes.
 
-6. **Board review**
+7. **Score risk**
+   - Read `references/report-rubric.md` for scoring and severity calibration.
+   - For each `BLOCKER` or `MAJOR`, assign confidence: `High`, `Medium`, or `Low`.
+   - Use risk score components when useful: impact, likelihood, exploitability, blast radius, and reversibility.
+   - Do not file unsupported claims. If evidence is incomplete, either lower confidence or move the item to open questions.
+
+8. **Board review**
    - For each high-value component, run Defender, Challenger, and Judge.
    - For low-risk boilerplate, summarize in inventory instead of spending full board prose.
    - Ground every important finding in file paths, line references when available, observed behavior, or explicit uncertainty.
+   - Include confidence for every `BLOCKER` and `MAJOR`.
 
-7. **Challenge round**
+9. **Challenge round**
    - Select the top three to five `BLOCKER` or `MAJOR` findings.
    - For each, describe the current failure mode, Defender's best objection, Challenger's proposed alternative, and Judge's chosen path.
 
-8. **Write deliverables**
+10. **Write deliverables**
    - Create:
      - `report.md`
      - `inventory.md`
@@ -148,7 +165,9 @@ For each finding include:
 - Title
 - Severity
 - Verdict
-- Evidence
+- Evidence, separated into observed facts and inferences
+- Confidence: `High`, `Medium`, or `Low` for all `BLOCKER` and `MAJOR` findings
+- Risk score when scoring is useful
 - Impact
 - Recommended action
 - Owner or follow-up area when inferable

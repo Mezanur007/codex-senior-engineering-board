@@ -9,7 +9,7 @@ An open-source Codex skill that brings structured senior-engineering audit workf
 
 This project is a contribution to the Codex/GPT developer ecosystem: a reusable audit skill for teams that want sharper engineering judgment before merging, launching, or trusting a codebase.
 
-Instead of a single friendly review, it creates a structured board debate with evidence, disagreement, verdicts, and severity-ranked action items.
+Instead of a single friendly review, it creates an evidence-first board debate with observed facts, inferences, open questions, verdicts, confidence levels, and severity-ranked action items.
 
 Senior Engineering Board convenes four review roles inside Codex:
 
@@ -19,6 +19,14 @@ Senior Engineering Board convenes four review roles inside Codex:
 - **Judge** issues a verdict and severity.
 
 The skill is designed for teams using GPT/Codex who want a sharper review ritual before merging large changes, launching a system, or trusting a codebase.
+
+## What Makes It Intelligent
+
+- **Evidence-first workflow**: Codex gathers repository facts before making judgments.
+- **Project classification**: The skill identifies project type, stage, runtime stack, risk surfaces, and missing evidence.
+- **Targeted playbooks**: Web apps, APIs, mobile apps, SaaS systems, AI products, PRs, and launch reviews use different checks.
+- **Risk scoring**: Important findings can include impact, likelihood, exploitability, blast radius, reversibility, and confidence.
+- **No unsupported claims**: Reports separate observed facts, inferences, and open questions.
 
 ## What It Produces
 
@@ -71,6 +79,34 @@ Use $senior-engineering-board for launch readiness. Is this ready to ship?
 ```text
 Find the loopholes in this system with the Senior Engineering Board.
 ```
+
+For a deeper audit:
+
+```text
+Use $senior-engineering-board to run an evidence-first codebase audit. Include risk scores, confidence levels, and open questions.
+```
+
+For a launch gate:
+
+```text
+Use $senior-engineering-board for a pre-launch audit. Focus on rollback, migrations, secrets, load, observability, and security.
+```
+
+For a PR:
+
+```text
+Use $senior-engineering-board to review this PR as a merge gate. Prioritize regressions, missing tests, and deployment risk.
+```
+
+## Optional Repo Snapshot
+
+The skill includes a read-only PowerShell helper that collects project facts before the board reasons over them:
+
+```powershell
+.\skills\senior-engineering-board\scripts\repo-snapshot.ps1 -Root .
+```
+
+It reports file counts, important manifests, test files, CI/deployment files, large files, TODO/FIXME markers, and possible secret-assignment locations. It intentionally does not print secret values.
 
 ## Highlight
 

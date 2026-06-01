@@ -8,7 +8,16 @@ Scope: API routes, service layer, worker queue, deployment config
 
 ## Executive Summary
 
-The board found one blocker and two major risks. The main issue is data integrity: order creation and payment confirmation can diverge during retries. The codebase has a clear service layout and readable route handlers, but it lacks idempotency, structured logging, and deployment rollback evidence.
+The board found one blocker and two major risks. The main issue is data integrity: order creation and payment confirmation can diverge during retries. The codebase has a clear service layout and readable route handlers, but it lacks idempotency, structured request correlation, and deployment rollback evidence.
+
+## Repo Snapshot
+
+| Area | Observed fact | Inference | Open question |
+|---|---|---|---|
+| Runtime | `package.json` and `src/server.ts` indicate a Node API. | Backend/API playbook applies. | Which endpoints are public? |
+| Tests | 18 files match `test` or `spec`. | Test coverage exists but may not include payment failure paths. | Are integration tests run in CI? |
+| Deployment | `.github/workflows/deploy.yml` exists. | Deployment is automated. | Has rollback been timed? |
+| Risk surfaces | Checkout route imports payment and order services. | Data integrity risk is high around checkout. | Does the payment provider use idempotency keys elsewhere? |
 
 ## Findings By Severity
 
@@ -18,7 +27,23 @@ The board found one blocker and two major risks. The main issue is data integrit
 
 Severity: BLOCKER  
 Verdict: REFACTOR  
-Evidence: `api/routes/checkout.ts` calls payment before the order state is committed.
+Confidence: High  
+Risk score: 23/25
+
+| Factor | Score | Reason |
+|---|---:|---|
+| Impact | 5 | Customer payment and order state can diverge. |
+| Likelihood | 4 | Timeout and retry paths are normal production events. |
+| Exploitability | 4 | A user retry or network failure can trigger it. |
+| Blast radius | 5 | Affects the core revenue path. |
+| Reversibility | 5 | Manual reconciliation is difficult without durable order state. |
+
+Evidence:
+
+- Observed fact: `api/routes/checkout.ts` calls payment before the order state is committed.
+- Observed fact: No idempotency key is passed into the payment call in the inspected route.
+- Inference: If payment succeeds and order persistence fails, support lacks a reliable order record.
+- Open question: Whether the payment provider dashboard has a manual reconciliation process.
 
 Impact: A timeout or retry can charge the customer twice or leave support without a reliable order record.
 
@@ -30,7 +55,15 @@ Recommended action: Create a pending order first, use an idempotency key, finali
 
 Severity: MAJOR  
 Verdict: REFACTOR  
-Evidence: Edge-level limits exist, but the application does not track attempts per account or tenant.
+Confidence: Medium  
+Risk score: 18/25
+
+Evidence:
+
+- Observed fact: Auth routes do not import or call a rate-limit middleware.
+- Observed fact: Edge deployment config exists, but no account-level failed-login tracking was found.
+- Inference: Edge controls may reduce traffic volume but do not protect account-specific brute force attempts.
+- Open question: Whether the production edge has custom WAF/rate-limit rules.
 
 Impact: Credential stuffing and noisy automated attacks can reach the auth layer.
 
@@ -40,9 +73,16 @@ Recommended action: Add per-IP and per-account limits, log failed attempts, and 
 
 Severity: MAJOR  
 Verdict: REWRITE  
-Evidence: Services use plain log lines without request IDs.
+Confidence: High  
+Risk score: 17/25
 
-Impact: Incident response will rely on manual correlation during failures.
+Evidence:
+
+- Observed fact: Services use plain log lines without request IDs.
+- Observed fact: Request middleware does not attach a correlation ID.
+- Inference: Incident response will rely on manual timestamp correlation during failures.
+
+Impact: Debugging partial failures across route, service, and worker layers will be slow and unreliable.
 
 Recommended action: Add request IDs at the edge and include them in every service log line.
 
@@ -58,14 +98,14 @@ Recommended action: Add request IDs at the edge and include them in every servic
 
 ## Challenge Round Summary
 
-The Judge selected the pending-order pattern because it gives support and automation a durable state to reconcile, while preserving the current user-facing checkout flow.
+The Judge selected the pending-order pattern because it gives support and automation a durable state to reconcile while preserving the current user-facing checkout flow.
 
 ## Recommended Action Plan
 
 1. Fix checkout idempotency and order/payment state transitions.
 2. Add auth rate limits and failed-login telemetry.
 3. Add structured logs with request IDs.
-4. Run a rollback drill before launch.
+4. Run and document a rollback drill before launch.
 
 ## Open Questions
 
