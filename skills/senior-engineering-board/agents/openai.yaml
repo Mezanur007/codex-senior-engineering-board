@@ -1,0 +1,4 @@
+interface:
+  display_name: "Senior Engineering Board"
+  short_description: "Adversarial codebase audit board"
+  default_prompt: "Use $senior-engineering-board to audit this codebase and produce a severity-ranked report."
