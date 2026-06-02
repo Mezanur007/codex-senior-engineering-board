@@ -88,7 +88,14 @@ The board must be direct, specific, and fair. Avoid vague praise, vague criticis
    - Select the top three to five `BLOCKER` or `MAJOR` findings.
    - For each, describe the current failure mode, Defender's best objection, Challenger's proposed alternative, and Judge's chosen path.
 
-10. **Write deliverables**
+10. **Final verdict and ratings**
+   - Produce an overall rating from `0.0` to `10.0`.
+   - Produce category ratings for Security, Reliability, Maintainability, Test Confidence, Performance, Observability, and Launch Readiness when applicable.
+   - For each category, explain points lost and link deductions to finding IDs or open question IDs.
+   - State launch or merge recommendation: `Ready`, `Ready with conditions`, `Not ready`, or `Blocked`.
+   - Read `references/report-rubric.md` for rating deductions and recommendation rules.
+
+11. **Write deliverables**
    - Create:
      - `report.md`
      - `inventory.md`
@@ -139,6 +146,8 @@ Scope:
 
 ## Executive Summary
 
+## Final Verdict And Rating
+
 ## Findings By Severity
 
 ### Blockers
@@ -162,6 +171,7 @@ Scope:
 
 For each finding include:
 
+- Stable ID such as `F-001`
 - Title
 - Severity
 - Verdict
@@ -171,6 +181,12 @@ For each finding include:
 - Impact
 - Recommended action
 - Owner or follow-up area when inferable
+
+For the final rating include:
+
+- Overall rating: `0.0/10`
+- Recommendation: `Ready`, `Ready with conditions`, `Not ready`, or `Blocked`
+- Rating breakdown table with area, score, points lost, reason for deduction, and related finding/open-question IDs
 
 ## Guardrails
 

@@ -10,6 +10,23 @@ Scope: API routes, service layer, worker queue, deployment config
 
 The board found one blocker and two major risks. The main issue is data integrity: order creation and payment confirmation can diverge during retries. The codebase has a clear service layout and readable route handlers, but it lacks idempotency, structured request correlation, and deployment rollback evidence.
 
+## Final Verdict And Rating
+
+Overall Rating: 6.1/10  
+Recommendation: Blocked
+
+The project has a workable backend structure, but it is not ready for production. The score is held down by a blocker in the checkout/payment path, weak auth abuse protection, missing request correlation, and unresolved launch-readiness evidence.
+
+| Area | Score | Points Lost | Why Points Were Lost | Related Items |
+|---|---:|---:|---|---|
+| Security | 7.0/10 | -3.0 | Application-level auth rate limits and account-level failed-login controls were not found. | F-002 |
+| Reliability | 5.5/10 | -4.5 | Checkout can diverge under retry or partial failure, and payment reconciliation evidence is missing. | F-001, Q-004 |
+| Maintainability | 8.0/10 | -2.0 | Service layout is readable, but cross-service logging ownership is unclear. | F-003 |
+| Test Confidence | 5.5/10 | -4.5 | Payment failure paths and auth abuse cases lack inspected test evidence. | F-001, F-002, Q-002 |
+| Performance | 8.0/10 | -2.0 | No hot-path performance issue was confirmed, but no load evidence was found. | Q-001 |
+| Observability | 5.0/10 | -5.0 | Logs do not carry request correlation across route, service, and worker layers. | F-003 |
+| Launch Readiness | 4.5/10 | -5.5 | Rollback timing, load testing, and compliance requirements are unresolved. | Q-001, Q-002, Q-003 |
+
 ## Repo Snapshot
 
 | Area | Observed fact | Inference | Open question |
@@ -23,7 +40,7 @@ The board found one blocker and two major risks. The main issue is data integrit
 
 ### Blockers
 
-#### Checkout can charge without a durable order
+#### F-001: Checkout can charge without a durable order
 
 Severity: BLOCKER  
 Verdict: REFACTOR  
@@ -51,7 +68,7 @@ Recommended action: Create a pending order first, use an idempotency key, finali
 
 ### Major
 
-#### Public auth endpoints lack application rate limits
+#### F-002: Public auth endpoints lack application rate limits
 
 Severity: MAJOR  
 Verdict: REFACTOR  
@@ -69,7 +86,7 @@ Impact: Credential stuffing and noisy automated attacks can reach the auth layer
 
 Recommended action: Add per-IP and per-account limits, log failed attempts, and alert on spikes.
 
-#### Logs cannot trace a request across services
+#### F-003: Logs cannot trace a request across services
 
 Severity: MAJOR  
 Verdict: REWRITE  
@@ -112,3 +129,4 @@ The Judge selected the pending-order pattern because it gives support and automa
 - What is the expected peak traffic for launch week?
 - Has the rollback process been timed?
 - Which compliance requirements apply to stored customer data?
+- Does the payment provider dashboard have a documented reconciliation process?

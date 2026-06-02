@@ -88,6 +88,74 @@ Typical examples:
 - Risk accepted for prototype stage.
 - Open question with low immediate impact.
 
+## Final Ratings
+
+Use final ratings to make the verdict understandable to both technical and non-technical readers. Ratings are judgment aids, not mathematical proof. Every point deduction must reference a finding ID or open question ID.
+
+### Categories
+
+Score applicable categories from `0.0` to `10.0`:
+
+- Security
+- Reliability
+- Maintainability
+- Test Confidence
+- Performance
+- Observability
+- Launch Readiness
+
+If a category does not apply, mark it `N/A` and explain why in one sentence. Do not include `N/A` categories in the overall average.
+
+### Deduction Ranges
+
+Start each applicable category at `10.0`. Deduct points based on evidence-backed issues:
+
+- `BLOCKER`: subtract `2.5` to `4.0`.
+- `MAJOR`: subtract `1.0` to `2.5`.
+- `MINOR`: subtract `0.25` to `1.0`.
+- `NOTE`: subtract `0.0` unless repeated notes show a pattern.
+- Relevant open question: subtract `0.25` to `1.5` when missing evidence materially affects confidence.
+
+Cap each category at a minimum of `0.0`. Use one decimal place.
+
+### Deduction Calibration
+
+- Use the high end when the issue affects customer data, payments, auth, tenant isolation, deployment safety, or incident recovery.
+- Use the middle when the issue is likely in production but recoverable.
+- Use the low end when the issue is localized or the confidence is `Low`.
+- Do not double-count the same finding heavily across many categories. If one finding affects multiple categories, apply the largest deduction to the primary category and smaller deductions elsewhere.
+- Missing evidence can reduce Test Confidence, Observability, or Launch Readiness, but should not be treated as a confirmed security bug unless code evidence supports it.
+
+### Overall Rating
+
+Calculate the overall rating as the average of applicable category scores, then adjust by release-blocking severity:
+
+- If any `BLOCKER` remains, overall rating must be `6.9` or lower.
+- If two or more `BLOCKER` findings remain, overall rating must be `5.9` or lower.
+- If there are no `BLOCKER` findings but three or more `MAJOR` findings remain, overall rating must be `7.4` or lower.
+- If all findings are `MINOR` or `NOTE`, overall rating can be `8.0` or higher.
+
+Round to one decimal place.
+
+### Recommendation
+
+- `Ready`: no `BLOCKER`, no unresolved high-impact `MAJOR`, and Launch Readiness is at least `8.0` when applicable.
+- `Ready with conditions`: no `BLOCKER`, but one or more `MAJOR` findings must be fixed or accepted before release/merge.
+- `Not ready`: at least one serious unresolved `MAJOR`, missing critical evidence, or Launch Readiness below `6.0`.
+- `Blocked`: any `BLOCKER` that can plausibly cause security, data, payment, migration, or availability harm.
+
+### Required Rating Table
+
+Use this table in `report.md`:
+
+```markdown
+| Area | Score | Points Lost | Why Points Were Lost | Related Items |
+|---|---:|---:|---|---|
+| Security | 7.0/10 | -3.0 | Missing application-level auth rate limits. | F-002 |
+```
+
+The `Why Points Were Lost` column must be specific enough that the team knows what to fix to improve the next audit score.
+
 ## Weak Finding Filters
 
 Do not file a finding when:

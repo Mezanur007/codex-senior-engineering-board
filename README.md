@@ -26,6 +26,7 @@ The skill is designed for teams using GPT/Codex who want a sharper review ritual
 - **Project classification**: The skill identifies project type, stage, runtime stack, risk surfaces, and missing evidence.
 - **Targeted playbooks**: Web apps, APIs, mobile apps, SaaS systems, AI products, PRs, and launch reviews use different checks.
 - **Risk scoring**: Important findings can include impact, likelihood, exploitability, blast radius, reversibility, and confidence.
+- **Final rating breakdown**: Reports can score key areas out of 10 and show exactly which findings reduced each rating.
 - **No unsupported claims**: Reports separate observed facts, inferences, and open questions.
 
 ## What It Produces
@@ -84,6 +85,12 @@ For a deeper audit:
 
 ```text
 Use $senior-engineering-board to run an evidence-first codebase audit. Include risk scores, confidence levels, and open questions.
+```
+
+For an executive final verdict:
+
+```text
+Use $senior-engineering-board to audit this codebase and include final ratings with point deductions for each issue.
 ```
 
 For a launch gate:
