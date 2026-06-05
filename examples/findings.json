@@ -1,0 +1,77 @@
+{
+  "project": "example-api",
+  "date": "2026-06-01",
+  "mode": "codebase-audit",
+  "depth": "standard",
+  "stage": "Development",
+  "overall_rating": 6.1,
+  "recommendation": "Blocked",
+  "ratings": [
+    {
+      "area": "Security",
+      "score": 7.0,
+      "points_lost": 3.0,
+      "reason": "Application-level auth rate limits and account-level failed-login controls were not found.",
+      "related_items": ["F-002"]
+    },
+    {
+      "area": "Reliability",
+      "score": 5.5,
+      "points_lost": 4.5,
+      "reason": "Checkout can diverge under retry or partial failure, and payment reconciliation evidence is missing.",
+      "related_items": ["F-001", "Q-004"]
+    },
+    {
+      "area": "Observability",
+      "score": 5.0,
+      "points_lost": 5.0,
+      "reason": "Logs do not carry request correlation across route, service, and worker layers.",
+      "related_items": ["F-003"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "title": "Checkout can charge without a durable order",
+      "severity": "BLOCKER",
+      "verdict": "REFACTOR",
+      "confidence": "High",
+      "risk_score": 23,
+      "category": "Reliability",
+      "points_lost": 4.5,
+      "paths": ["api/routes/checkout.ts"],
+      "evidence": [
+        "Observed fact: api/routes/checkout.ts calls payment before the order state is committed.",
+        "Observed fact: no idempotency key is passed into the payment call in the inspected route."
+      ],
+      "recommended_action": "Create a pending order first, use an idempotency key, finalize payment and order state transactionally, and move email delivery to a worker."
+    },
+    {
+      "id": "F-002",
+      "title": "Public auth endpoints lack application rate limits",
+      "severity": "MAJOR",
+      "verdict": "REFACTOR",
+      "confidence": "Medium",
+      "risk_score": 18,
+      "category": "Security",
+      "points_lost": 3.0,
+      "paths": ["api/routes/auth.ts"],
+      "evidence": [
+        "Observed fact: auth routes do not import or call a rate-limit middleware."
+      ],
+      "recommended_action": "Add per-IP and per-account limits, log failed attempts, and alert on spikes."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-001",
+      "question": "What is the expected peak traffic for launch week?",
+      "affects": ["Performance", "Launch Readiness"]
+    },
+    {
+      "id": "Q-004",
+      "question": "Does the payment provider dashboard have a documented reconciliation process?",
+      "affects": ["Reliability"]
+    }
+  ]
+}
