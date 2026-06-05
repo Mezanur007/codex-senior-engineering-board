@@ -130,3 +130,11 @@ The Judge selected the pending-order pattern because it gives support and automa
 - Has the rollback process been timed?
 - Which compliance requirements apply to stored customer data?
 - Does the payment provider dashboard have a documented reconciliation process?
+
+## Supporting Files
+
+- `inventory.md`
+- `dependency-map.md`
+- `challenge-rounds.md`
+- `unanswered-questions.md`
+- `findings.json`
