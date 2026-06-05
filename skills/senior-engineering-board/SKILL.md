@@ -21,6 +21,14 @@ Choose the narrowest mode that satisfies the request.
 
 If the user asks for fixes during an audit, record the fix as an action item. Only implement after the audit if the user explicitly switches from audit to implementation.
 
+## Audit Depth
+
+Choose the depth based on the user's request, time sensitivity, and project size. If the user does not specify depth, use `standard`.
+
+- `fast`: top risks only. Inspect repo snapshot, manifests, routes/entrypoints, changed files if any, and obvious critical paths. Produce `report.md`, `unanswered-questions.md`, and `findings.json`. Skip full inventory, dependency map, and challenge rounds unless a blocker is found.
+- `standard`: default. Run repo snapshot, targeted inventory, dependency map for important components, board review of high-value areas, final ratings, and all deliverables.
+- `deep`: full audit. Run broad inventory, dependency map, board review across all meaningful components, challenge rounds for top findings, final ratings, and all deliverables. Use when the user asks for launch readiness, production review, or maximum confidence.
+
 ## Board Roles
 
 Use these roles explicitly in reports when evaluating important components.
@@ -61,6 +69,7 @@ The board must be direct, specific, and fair. Avoid vague praise, vague criticis
    - `Production`: already live; focus on incident risk and maintainability.
    - If the user says the stage conflicts with code evidence, note the conflict and use the user's stage as authoritative.
    - Read `references/audit-playbooks.md` when the project type or mode needs targeted checks.
+   - If Laravel is detected through `composer.json`, `artisan`, `app/Http`, or `routes/web.php`, read `references/frameworks/laravel.md`.
 
 5. **Inventory**
    - Catalog meaningful components: services, routes, jobs, screens, data models, migrations, integrations, scripts, and shared utilities.
@@ -102,7 +111,9 @@ The board must be direct, specific, and fair. Avoid vague praise, vague criticis
      - `dependency-map.md`
      - `challenge-rounds.md`
      - `unanswered-questions.md`
+     - `findings.json`
    - Keep `report.md` readable on its own and link to the supporting files.
+   - Keep `findings.json` machine-readable, compact, and consistent with `report.md`.
 
 ## Severity Rules
 
@@ -167,6 +178,51 @@ Scope:
 ## Open Questions
 
 ## Supporting Files
+```
+
+Also create `findings.json`:
+
+```json
+{
+  "project": "project-name",
+  "date": "YYYY-MM-DD",
+  "mode": "codebase-audit",
+  "depth": "standard",
+  "stage": "Development",
+  "overall_rating": 6.1,
+  "recommendation": "Blocked",
+  "ratings": [
+    {
+      "area": "Reliability",
+      "score": 5.5,
+      "points_lost": 4.5,
+      "reason": "Checkout can diverge under retry or partial failure.",
+      "related_items": ["F-001"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "title": "Checkout can charge without durable order",
+      "severity": "BLOCKER",
+      "verdict": "REFACTOR",
+      "confidence": "High",
+      "risk_score": 23,
+      "category": "Reliability",
+      "points_lost": 4.5,
+      "paths": ["api/routes/checkout.ts"],
+      "evidence": ["Observed fact: payment is called before order state is committed."],
+      "recommended_action": "Create pending order first and use idempotency."
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "Q-001",
+      "question": "Has rollback been timed?",
+      "affects": ["Launch Readiness"]
+    }
+  ]
+}
 ```
 
 For each finding include:
