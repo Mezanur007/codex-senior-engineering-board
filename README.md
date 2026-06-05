@@ -25,8 +25,10 @@ The skill is designed for teams using GPT/Codex who want a sharper review ritual
 - **Evidence-first workflow**: Codex gathers repository facts before making judgments.
 - **Project classification**: The skill identifies project type, stage, runtime stack, risk surfaces, and missing evidence.
 - **Targeted playbooks**: Web apps, APIs, mobile apps, SaaS systems, AI products, PRs, and launch reviews use different checks.
+- **Laravel-aware checks**: Laravel projects get targeted review of routes, middleware, policies, validation, Eloquent, queues, uploads, and migrations.
 - **Risk scoring**: Important findings can include impact, likelihood, exploitability, blast radius, reversibility, and confidence.
 - **Final rating breakdown**: Reports can score key areas out of 10 and show exactly which findings reduced each rating.
+- **Machine-readable output**: Audits can include `findings.json` for tracking, dashboards, and follow-up audits.
 - **No unsupported claims**: Reports separate observed facts, inferences, and open questions.
 
 ## What It Produces
@@ -44,6 +46,7 @@ Expected files:
 - `dependency-map.md` - important dependencies and coupling risks
 - `challenge-rounds.md` - deeper debate on the top findings
 - `unanswered-questions.md` - open questions and missing evidence
+- `findings.json` - machine-readable ratings, findings, deductions, and open questions
 
 ## Install
 
@@ -85,6 +88,22 @@ For a deeper audit:
 
 ```text
 Use $senior-engineering-board to run an evidence-first codebase audit. Include risk scores, confidence levels, and open questions.
+```
+
+For depth control:
+
+```text
+Use $senior-engineering-board to run a fast audit of this repo and produce findings.json.
+```
+
+```text
+Use $senior-engineering-board to run a deep audit with full inventory, dependency map, challenge rounds, ratings, and findings.json.
+```
+
+For Laravel:
+
+```text
+Use $senior-engineering-board to audit this Laravel app. Focus on routes, middleware, policies, request validation, Eloquent, queues, migrations, uploads, and secrets.
 ```
 
 For an executive final verdict:
